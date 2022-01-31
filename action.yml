@@ -36,7 +36,8 @@ runs:
       echo "PWD = " $PWD
       touch container-images-key.txt && echo "" > container-images-key.txt
       export IMAGES_URIS=`echo $CONTAINER_IMAGES | sed 's/:/\/tags\//g'`
-      while read line ; do echo Checking last updated time for https://hub.docker.com/v2/repositories/$line/ ; done
+      echo "Images URIS=$IMAGES_URIS"
+      while read line ; do echo "Checking last updated time for https://hub.docker.com/v2/repositories/$line/" ; done
       echo $IMAGES_URIS | while read line ; do `go run ./get-last-updated.go https://hub.docker.com/v2/repositories/$line/` >> container-images-key.txt ; done
       #echo tarbaction2-`go run ./get-last-updated.go https://hub.docker.com/v2/repositories/selenium/standalone-chrome/tags/latest/` > selenium-standalone-chrome-latest.txt
       #echo "Cache key = "
