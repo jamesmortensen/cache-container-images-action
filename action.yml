@@ -34,9 +34,10 @@ runs:
     run: |
       echo "Home = " $HOME
       echo "PWD = " $PWD
+      echo "CONTAINER_IMAGES="$CONTAINER_IMAGES
       rm container-images-key.txt && touch container-images-key.txt
       export IMAGES_URIS=`echo $CONTAINER_IMAGES | sed 's/:/\/tags\//g'`
-      echo "Images URIS=" $IMAGES_URIS
+      echo "Images URIS="$IMAGES_URIS
       echo $IMAGES_URIS | while read line ; do echo $line | tr " " "\n" >> images-to-pull.txt
       #cat images-to-pull.txt | while read line ; do echo "Checking last updated time for https://hub.docker.com/v2/repositories/$line/" ; done
       #cat images-to-pull.txt | while read line ; do echo `go run ./get-last-updated.go https://hub.docker.com/v2/repositories/$line/` >> container-images-key.txt ; done
