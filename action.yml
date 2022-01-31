@@ -57,6 +57,7 @@ runs:
       key: ${{ runner.os }}-${{ hashFiles('**/container-images-key.txt') }}
  
   - name: Pull Container Image if cache miss
+    shell: bash
     if: steps.get-last-updated.outputs.cache-hit != 'true'
     run: |
       echo "Key was = " 
@@ -65,6 +66,7 @@ runs:
       cat container-images.txt | while read line ; do podman pull $line ; done
 
   - name: Archive Container Images if cache miss
+    shell: bash
     if: steps.get-last-updated.outputs.cache-hit != 'true'
     run: | 
       echo "Start archiving images at " `date`
@@ -76,12 +78,14 @@ runs:
       echo "Stop compression at " `date` 
  
   - name: Extract tarball if found in cache
+    shell: bash
     if: steps.get-last-updated.outputs.cache-hit == 'true'
     run: |
       sudo tar xf cached-container-images.tar -C $HOME
       ls -ltrSha $HOME
 
   - name: Start and stop container with podman
+    shell: bash
     run: |
       echo Before running podman run...
       # ls -lt $HOME/.local/
