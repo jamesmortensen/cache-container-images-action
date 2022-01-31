@@ -37,7 +37,7 @@ runs:
       echo $CONTAINER_IMAGES | while read line ; do `go run ./get-last-updated.go https://hub.docker.com/v2/repositories/selenium/$line/` > container-images-key.txt ; done
       #echo tarbaction2-`go run ./get-last-updated.go https://hub.docker.com/v2/repositories/selenium/standalone-chrome/tags/latest/` > selenium-standalone-chrome-latest.txt
       #echo "Cache key = "
-      #cat selenium-standalone-chrome-latest.txt
+      cat container-images-key.txt
       #echo "::set-output name=port::${port}"
 
   - name: Next
