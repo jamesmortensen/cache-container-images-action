@@ -27,7 +27,7 @@ runs:
         exit 1
       fi
       
-  - name: Get the last updated times for the container images
+  - name: Get the last updated times for the container images to build key
     shell: bash
     env:
       CONTAINER_IMAGES: ${{ inputs.images }} 
@@ -39,24 +39,62 @@ runs:
       export IMAGES_URIS=`echo $CONTAINER_IMAGES | sed 's/:/\/tags\//g'`
       echo "Images URIS="$IMAGES_URIS
       echo $IMAGES_URIS | tr " " "\n" >> container-images-uris.txt
+      echo $CONTAINER_IMAGES | tr " " "\n" >> container-images.txt
       cat container-images-uris.txt
       cat container-images-uris.txt | while read line ; do echo "Checking last updated time for https://hub.docker.com/v2/repositories/$line/" ; done
-      #cat images-to-pull.txt | while read line ; do echo `go run ./get-last-updated.go https://hub.docker.com/v2/repositories/$line/` >> container-images-key.txt ; done
+      cat container-images-uris.txt | while read line ; do echo `go run ./get-last-updated.go https://hub.docker.com/v2/repositories/$line/` >> container-images-key.txt ; done
       #echo tarbaction2-`go run ./get-last-updated.go https://hub.docker.com/v2/repositories/selenium/standalone-chrome/tags/latest/` > selenium-standalone-chrome-latest.txt
       #echo "Cache key = "
       cat container-images-key.txt
       #echo "::set-output name=port::${port}"
 
-  - name: Next
-    shell: bash
+  - name: Check Container Images Cache 
+    id: get-last-updated
+    uses: actions/cache@v2
+    with:
+      path: cached-container-images.tar
+#          path: ~/.local/share/containers/storage
+      key: ${{ runner.os }}-${{ hashFiles('**/container-images-key.txt') }}
+ 
+  - name: Pull Container Image if cache miss
+    if: steps.get-last-updated.outputs.cache-hit != 'true'
     run: |
-      echo "next"
-      #echo $CONTAINER_IMAGES | while read line ; do podman pull $line ; done
+      echo "Key was = " 
+      cat container-images-key.txt
+      echo "Since there was a cache miss, we will pull..."
+      cat container-images.txt | while read line ; do podman pull $line ; done
 
-
-  - name: Next2
-    shell: bash
+  - name: Archive Container Images if cache miss
+    if: steps.get-last-updated.outputs.cache-hit != 'true'
+    run: | 
+      echo "Start archiving images at " `date`
+      export OLD_PWD=$PWD
+      cd $HOME
+      sudo tar cf $OLD_PWD/cached-container-images.tar .local/share/containers/storage/
+      sudo chown runner:docker $OLD_PWD/cached-container-images.tar
+      cd $OLD_PWD
+      echo "Stop compression at " `date` 
+ 
+  - name: Extract tarball if found in cache
+    if: steps.get-last-updated.outputs.cache-hit == 'true'
     run: |
-      echo "next 2"
+      sudo tar xf cached-container-images.tar -C $HOME
+      ls -ltrSha $HOME
+
+  - name: Start and stop container with podman
+    run: |
+      echo Before running podman run...
+      # ls -lt $HOME/.local/
+      echo Run podman run...
+      podman run --rm -d --cidfile cid-node selenium/node-chrome:latest
+      podman run --rm -d --cidfile cid-hub selenium/hub:latest
+      echo After running podman run...
+      #ls -lt $HOME/.local/share/containers/
+      #ls -lt $HOME/.local/share/containers/storage/
+      #ls -lt $HOME/.local/share/containers/storage/overlay
+      #ls -lt $HOME/.local/share/containers/storage/overlay/42b6efa661fa4290c25331f50dcb4a7c955019ee2ab85dd36ed896c8172f69f6
+      #du -sh $HOME/.local/share/containers/storage/*
+      podman stop --cidfile cid-node
+      podman stop --cidfile cid-hub
 
 
