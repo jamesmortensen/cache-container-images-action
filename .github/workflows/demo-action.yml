@@ -29,7 +29,7 @@ jobs:
         id: cache-container-images
         uses: jamesmortensen/cache-container-images-action@master
         with:
-          Runtime: podman
+          runtime: podman
           images: |
             selenium/node-chrome:latest
             selenium/hub:latest
@@ -43,16 +43,5 @@ jobs:
           podman run --rm -d --cidfile cid-node selenium/node-chrome:latest
           podman run --rm -d --cidfile cid-hub selenium/hub:latest
           echo After running podman run...
-          #ls -lt $HOME/.local/share/containers/
-          #ls -lt $HOME/.local/share/containers/storage/
-          #ls -lt $HOME/.local/share/containers/storage/overlay
-          #ls -lt $HOME/.local/share/containers/storage/overlay/42b6efa661fa4290c25331f50dcb4a7c955019ee2ab85dd36ed896c8172f69f6
-          #du -sh $HOME/.local/share/containers/storage/*
           podman stop --cidfile cid-node
           podman stop --cidfile cid-hub
-
-      # Runs a single command using the runners shell
-#       - name: Start and stop container
-#         run: |
-#           podman run --rm -d --cidfile cid selenium/node-chrome:latest
-
