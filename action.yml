@@ -1,0 +1,51 @@
+name: 'Cache Container Images Action'
+description: ''
+author: 'James Mortensen'
+inputs:
+  runtime:
+    description: 'container runtime engine'
+    required: true
+    default: 'podman'
+  images:
+    description: 'container images to pull and cache'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+  - name: Validate runner and inputs
+    shell: bash
+    run: |
+      if [[ "${RUNNER_OS}" != 'Linux' ]] && [[ "${RUNNER_OS}" != 'macOS' ]]; then
+        echo "${RUNNER_OS} is not supported. Only Linux is supported at this time."
+        exit 1
+      fi
+
+      if [[ "${{ inputs.runtime }}" != 'podman' ]]; then
+        echo "${{ inputs.runtime }} is not supported. Only podman is supported at this time. If you"
+        echo "build your containers with Docker and push them to Docker Hub, you can still use podman"
+        echo "in GitHub Actions, since container images are a standard across different runtime engines."
+        exit 1
+      fi
+      
+  - name: Get the last updated times for the container images
+    run: |
+      echo "Home = " $HOME
+      echo "PWD = " $PWD
+      echo "${{ inputs.images }}"
+      #echo tarbaction2-`go run ./get-last-updated.go https://hub.docker.com/v2/repositories/selenium/standalone-chrome/tags/latest/` > selenium-standalone-chrome-latest.txt
+      #echo "Cache key = "
+      #cat selenium-standalone-chrome-latest.txt
+      #echo "::set-output name=port::${port}"
+
+  - name: Next
+    shell: bash
+    run: |
+      echo "next"
+
+
+  - name: Next2
+    shell: bash
+    run: |
+      echo "next 2"
+
+
