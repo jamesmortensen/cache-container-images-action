@@ -16,7 +16,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  cache-hit:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -31,22 +31,77 @@ jobs:
         with:
           runtime: podman
           images: |
-            selenium/node-chrome:latest
-            selenium/hub:latest
+            selenium/node-chrome:4.1.2-20220130
+            selenium/hub:4.1.2-20220130
 
       - name: Check that we can install to .local without permission issues
-        if: ${{ steps.cache-container-images.outputs.cache-hit == 'true' }}
         shell: bash
         run: |
           ls -ltrSha ~/.local
           echo "Attempting to install podman-compose. If it installs successfully, then permissions are ok"
           pip3 install podman-compose
 
+      - name: Run this only if there is a cache hit
+        if: ${{ steps.cache-container-images.outputs.cache-hit == 'true' }}
+        shell: bash
+        run: echo "Container images are found in the cache"
+
+      - name: Run this only if there is a cache miss
+        if: ${{ steps.cache-container-images.outputs.cache-hit != 'true' }}
+        shell: bash
+        run: echo "Container images are not found in the cache!"
+
       - name: Start and stop container with podman
         shell: bash
         run: |
           echo Before running podman run...
-          # ls -lt $HOME/.local/
+          echo Run podman run...
+          podman run --rm -d --cidfile cid-node selenium/node-chrome:4.1.2-20220130
+          podman run --rm -d --cidfile cid-hub selenium/hub:4.1.2-20220130
+          echo After running podman run...
+          podman stop --cidfile cid-node
+          podman stop --cidfile cid-hub
+
+
+  cache-miss:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      
+      - name: Cache Container Images
+        id: cache-container-images
+        uses: jamesmortensen/cache-container-images-action@master
+        with:
+          prefix-key: 'podman-cache ${{ github.run_id }}'
+          images: |
+            selenium/node-chrome:latest
+            selenium/hub:latest
+
+      - name: Check that we can install to .local without permission issues
+        shell: bash
+        run: |
+          ls -ltrSha ~/.local
+          echo "Attempting to install podman-compose. If it installs successfully, then permissions are ok"
+          pip3 install podman-compose
+
+      - name: Run this only if there is a cache hit
+        if: ${{ steps.cache-container-images.outputs.cache-hit == 'true' }}
+        shell: bash
+        run: echo "Container images are found in the cache"
+
+      - name: Run this only if there is a cache miss
+        if: ${{ steps.cache-container-images.outputs.cache-hit != 'true' }}
+        shell: bash
+        run: echo "Container images are not found in the cache!"
+
+      - name: Start and stop container with podman
+        shell: bash
+        run: |
+          echo Before running podman run...
           echo Run podman run...
           podman run --rm -d --cidfile cid-node selenium/node-chrome:latest
           podman run --rm -d --cidfile cid-hub selenium/hub:latest
