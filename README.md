@@ -26,18 +26,51 @@ GitHub Action runners come preinstalled with some base Docker images, and this a
 
 ## Usage
 
-Add this to your workflow file, and replace the images with ones you'll be using in your workflow. In the example below, we plan to cache selenium/node-chrome:latest and selenium/hub:latest:
+Add this to your workflow file, and replace the required field, images, with ones you'll be using in your workflow. In the example below, we plan to cache selenium/node-chrome:latest and selenium/hub:latest, so we declare this in the images block:
 
 ```yaml
       - name: Cache Container Images
         id: cache-container-images
         uses: jamesmortensen/cache-container-images-action@v1
         with:
-          runtime: podman
           images: |
             selenium/node-chrome:latest
             selenium/hub:latest
 ```
+
+When new images are pushed to the container registry at Docker Hub, then when the action runs, it will pull fresh images. As long as you're using the "latest" tag, the system will pull the latest images and then cache them until new ones are pushed to the registry.  If you use immutable tags, then the images will theoretically remain cached until something happens to clear them from [actions/cache](https://github.com/actions/cache).
+
+If you need to force a cache flush, change the prefix-key, 'podman-cache' by default, to any other value:
+
+```yaml
+      - name: Cache Container Images
+        id: cache-container-images
+        uses: jamesmortensen/cache-container-images-action@v1
+        with:
+          prefix-key: 'afdafdasfds'
+          images: |
+            selenium/node-chrome:4.1.2-20220130
+            selenium/node-firefox:4.1.2-20220130
+            selenium/node-edge:4.1.2-20220130
+            selenium/hub:4.1.2-20220130
+```
+
+In your workflows, you may want to perform some actions only in the event of a cache hit or a cache miss. You can do this like so:
+
+```yaml
+      - name: Run this step only if container images were found in the cache
+        if: ${{ steps.cache-container-images.outputs.cache-hit == 'true' }}
+        shell: bash
+        run: echo "Container images were found in the cache..."
+
+      - name: Run this step only if container images were NOT found in the cache
+        if: ${{ steps.cache-container-images.outputs.cache-hit != 'true' }}
+        shell: bash
+        run: echo "Container images were NOT found in the cache..."
+```
+
+NOTE:  Be sure to use `!= 'true'` as actions/cache does not set any cache-hit value if there's a cache miss.
+
 
 See the [demo-action.yml](https://github.com/jamesmortensen/cache-container-images-action/blob/master/.github/workflows/demo-action.yml) workflow file for a simple example. 
 
