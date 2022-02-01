@@ -38,7 +38,7 @@ jobs:
         if: ${{ steps.cache-container-images.outputs.cache-hit == 'true' }}
         shell: bash
         run: |
-          echo `ls -ltrSha .local
+          ls -ltrSha .local
           echo "Attempting to install podman-compose. If it installs successfully, then permissions are ok"
           pip3 install podman-compose
 
