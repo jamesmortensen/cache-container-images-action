@@ -9,6 +9,10 @@ inputs:
   images:
     description: 'container images to pull and cache'
     required: true
+outputs:
+  cache-hit:
+    description: "True if container images were found and pulled from the cache"
+    value: ${{ steps.container-images-cache.outputs.cache-hit }}
 runs:
   using: 'composite'
   steps:
@@ -86,3 +90,12 @@ runs:
       mkdir -p ~/.local/share/containers/
       sudo tar xf cached-container-images.tar -C $HOME
       echo "Done extracting images at " `date`
+      
+  - name: Set cache-hit output
+    id: container-images-cache
+    shell: bash
+    env:
+      CONTAINER_IMAGES_CACHE_HIT: ${{ steps.get-last-updated.outputs.cache-hit }}
+    run: |
+      echo "::set-output name=cache-hit::$CONTAINER_IMAGES_CACHE_HIT"
+      

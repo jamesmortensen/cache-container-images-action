@@ -34,6 +34,14 @@ jobs:
             selenium/node-chrome:latest
             selenium/hub:latest
 
+      - name: Check that we can install to .local without permission issues
+        if: ${{ steps.cache-container-images.outputs.cache-hit == 'true' }}
+        shell: bash
+        run: |
+          echo `ls -ltrSha .local
+          echo "Attempting to install podman-compose. If it installs successfully, then permissions are ok"
+          pip3 install podman-compose
+
       - name: Start and stop container with podman
         shell: bash
         run: |
