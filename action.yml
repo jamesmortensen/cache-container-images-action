@@ -3,12 +3,16 @@ description: ''
 author: 'James Mortensen'
 inputs:
   runtime:
-    description: 'container runtime engine'
-    required: true
+    description: 'Container runtime engine'
+    required: false
     default: 'podman'
   images:
-    description: 'container images to pull and cache'
+    description: 'Container images to pull and cache'
     required: true
+  prefix-key:
+    description: 'The cache namespace. change the value to force a container image cache miss.'
+    required: false
+    default: 'podman-cache'
 outputs:
   cache-hit:
     description: "True if container images were found and pulled from the cache"
@@ -34,7 +38,8 @@ runs:
   - name: Get the last updated times for the container images to build key
     shell: bash
     env:
-      CONTAINER_IMAGES: ${{ inputs.images }} 
+      CONTAINER_IMAGES: ${{ inputs.images }}
+      CONTAINER_IMAGES_PREFIX_KEY: ${{ inputs.prefix-key }}
     run: |
       echo "Home = " $HOME
       echo "PWD = " $PWD
@@ -46,7 +51,7 @@ runs:
       echo $CONTAINER_IMAGES | tr " " "\n" >> container-images.txt
       cat container-images-uris.txt
       cat container-images-uris.txt | while read line ; do echo "Checking last updated time for https://hub.docker.com/v2/repositories/$line/" ; done
-      cat container-images-uris.txt | while read line ; do echo `go run ./get-last-updated.go https://hub.docker.com/v2/repositories/$line/` >> container-images-key.txt ; done
+      cat container-images-uris.txt | while read line ; do echo $CONTAINER_IMAGES_PREFIX_KEY-`go run ./get-last-updated.go https://hub.docker.com/v2/repositories/$line/` >> container-images-key.txt ; done
       #echo tarbaction2-`go run ./get-last-updated.go https://hub.docker.com/v2/repositories/selenium/standalone-chrome/tags/latest/` > selenium-standalone-chrome-latest.txt
       #echo "Cache key = "
       cat container-images-key.txt
