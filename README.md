@@ -8,7 +8,7 @@ This action only works for the podman engine. Since both Podman and Docker follo
 
 ## Time (and money) savings
 
-GitHub Action runners for Linux are billed aat $0.008 per minute. The less time it takes to run a workflow, the more we're able to run workflows. We also get faster feedback.
+GitHub Action runners for Linux are billed at $0.008 per minute. The less time it takes to run a workflow, the more we're able to run workflows. We also get faster feedback.
 
 When pulling selenium/standalone-chrome:latest, a 1.3GB container image, my average time savings was 30 seconds per run. When there's a cache miss, on average, it takes 23 seconds longer to archive and store the pulled images in the cache. This is not counting the average 31 seconds to pull the image when there's a cache miss. The break even period comes with just one cached workflow run.
 
