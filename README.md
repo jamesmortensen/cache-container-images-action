@@ -76,4 +76,4 @@ See the [demo-action.yml](https://github.com/jamesmortensen/cache-container-imag
 
 ## License 
 
-Copywright (c) James Mortensen, 2022 MIT License
+Copyright (c) James Mortensen, 2022 MIT License
