@@ -34,6 +34,9 @@ runs:
         echo "in GitHub Actions, since container images are a standard across different runtime engines."
         exit 1
       fi
+
+  - name: Checkout
+    uses: actions/checkout@v3
       
   - name: Get the last updated times for the container images to build key
     shell: bash
