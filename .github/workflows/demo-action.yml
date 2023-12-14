@@ -27,7 +27,7 @@ jobs:
       
       - name: Cache Container Images
         id: cache-container-images
-        uses: jamesmortensen/cache-container-images-action@master
+        uses: jamesmortensen/cache-container-images-action@${{ github.sha }}
         with:
           runtime: podman
           images: |
@@ -74,7 +74,7 @@ jobs:
       
       - name: Cache Container Images
         id: cache-container-images
-        uses: jamesmortensen/cache-container-images-action@master
+        uses: jamesmortensen/cache-container-images-action@${{ github.sha }}
         with:
           prefix-key: 'podman-cache ${{ github.run_id }}'
           images: |
