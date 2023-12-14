@@ -44,8 +44,7 @@ runs:
 
   - name: Get the last updated times for the container images to build key
     run: |
-      import json
-      import requests
+      import json, os, requests
       
       def get_last_updated(tag_url):
           response = requests.get(tag_url)
