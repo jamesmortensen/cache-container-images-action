@@ -11,7 +11,11 @@ on:
     branches: [ master ]
 
   # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+  workflow_dispatch: {}
+
+defaults:
+  run:
+    shell: bash
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -27,7 +31,7 @@ jobs:
       
       - name: Cache Container Images
         id: cache-container-images
-        uses: jamesmortensen/cache-container-images-action@${{ github.sha }}
+        uses: ./
         with:
           runtime: podman
           images: |
@@ -35,7 +39,6 @@ jobs:
             selenium/hub:4.1.2-20220130
 
       - name: Check that we can install to .local without permission issues
-        shell: bash
         run: |
           ls -ltrSha ~/.local
           echo "Attempting to install podman-compose. If it installs successfully, then permissions are ok"
@@ -43,16 +46,13 @@ jobs:
 
       - name: Run this only if there is a cache hit
         if: ${{ steps.cache-container-images.outputs.cache-hit == 'true' }}
-        shell: bash
         run: echo "Container images are found in the cache"
 
       - name: Run this only if there is a cache miss
         if: ${{ steps.cache-container-images.outputs.cache-hit != 'true' }}
-        shell: bash
         run: echo "Container images are not found in the cache!"
 
       - name: Start and stop container with podman
-        shell: bash
         run: |
           echo Before running podman run...
           echo Run podman run...
@@ -74,7 +74,7 @@ jobs:
       
       - name: Cache Container Images
         id: cache-container-images
-        uses: jamesmortensen/cache-container-images-action@${{ github.sha }}
+        uses: ./
         with:
           prefix-key: 'podman-cache ${{ github.run_id }}'
           images: |
@@ -82,7 +82,6 @@ jobs:
             selenium/hub:latest
 
       - name: Check that we can install to .local without permission issues
-        shell: bash
         run: |
           ls -ltrSha ~/.local
           echo "Attempting to install podman-compose. If it installs successfully, then permissions are ok"
@@ -90,16 +89,13 @@ jobs:
 
       - name: Run this only if there is a cache hit
         if: ${{ steps.cache-container-images.outputs.cache-hit == 'true' }}
-        shell: bash
         run: echo "Container images are found in the cache"
 
       - name: Run this only if there is a cache miss
         if: ${{ steps.cache-container-images.outputs.cache-hit != 'true' }}
-        shell: bash
         run: echo "Container images are not found in the cache!"
 
       - name: Start and stop container with podman
-        shell: bash
         run: |
           echo Before running podman run...
           echo Run podman run...
