@@ -1,5 +1,4 @@
 # This is a basic workflow to help you get started with Actions
-
 name: CI
 
 # Controls when the workflow will run
@@ -31,6 +30,8 @@ jobs:
       
       - name: Cache Container Images
         id: cache-container-images
+        # In your project you replace local version "./" with following
+        # uses: jamesmortensen/cache-container-images-action@master
         uses: ./
         with:
           runtime: podman
@@ -44,13 +45,12 @@ jobs:
           echo "Attempting to install podman-compose. If it installs successfully, then permissions are ok"
           pip3 install podman-compose
 
-      - name: Run this only if there is a cache hit
-        if: ${{ steps.cache-container-images.outputs.cache-hit == 'true' }}
-        run: echo "Container images are found in the cache"
+      - name: Show output of cache hit
+        run: echo "${{ steps.cache-container-images.outputs.cache-hit }}"
 
-      - name: Run this only if there is a cache miss
+      - name: Terminate if cache was not hit
         if: ${{ steps.cache-container-images.outputs.cache-hit != 'true' }}
-        run: echo "Container images are not found in the cache!"
+        run: exit 1
 
       - name: Start and stop container with podman
         run: |
@@ -74,6 +74,8 @@ jobs:
       
       - name: Cache Container Images
         id: cache-container-images
+        # In your project you replace local version "./" with following
+        # uses: jamesmortensen/cache-container-images-action@master
         uses: ./
         with:
           prefix-key: 'podman-cache ${{ github.run_id }}'
@@ -87,13 +89,12 @@ jobs:
           echo "Attempting to install podman-compose. If it installs successfully, then permissions are ok"
           pip3 install podman-compose
 
-      - name: Run this only if there is a cache hit
-        if: ${{ steps.cache-container-images.outputs.cache-hit == 'true' }}
-        run: echo "Container images are found in the cache"
+      - name: Show output of cache hit
+        run: echo "${{ steps.cache-container-images.outputs.cache-hit }}"
 
-      - name: Run this only if there is a cache miss
-        if: ${{ steps.cache-container-images.outputs.cache-hit != 'true' }}
-        run: echo "Container images are not found in the cache!"
+      - name: Terminate if cache was hit
+        if: ${{ steps.cache-container-images.outputs.cache-hit == 'true' }}
+        run: exit 1
 
       - name: Start and stop container with podman
         run: |
