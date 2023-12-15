@@ -20,20 +20,20 @@ outputs:
 runs:
   using: 'composite'
   steps:
-  - name: Validate runner and inputs
-    shell: bash
+  - name: Validate runner
+    if: runner.os != 'Linux' && runner.os != 'macOS'
     run: |
-      if [[ "${RUNNER_OS}" != 'Linux' ]] && [[ "${RUNNER_OS}" != 'macOS' ]]; then
-        echo "${RUNNER_OS} is not supported. Only Linux is supported at this time."
-        exit 1
-      fi
-
-      if [[ "${{ inputs.runtime }}" != 'podman' ]]; then
-        echo "${{ inputs.runtime }} is not supported. Only podman is supported at this time. If you"
-        echo "build your containers with Docker and push them to Docker Hub, you can still use podman"
-        echo "in GitHub Actions, since container images are a standard across different runtime engines."
-        exit 1
-      fi
+      echo "${RUNNER_OS} is not supported. Only Linux is supported at this time."
+      exit 1
+    shell: bash
+  - name: Validate inputs
+    if: inputs.runtime != 'podman'
+    run: |
+      echo "${{ inputs.runtime }} is not supported. Only podman is supported at this time. If you"
+      echo "build your containers with Docker and push them to Docker Hub, you can still use podman"
+      echo "in GitHub Actions, since container images are a standard across different runtime engines."
+      exit 1
+    shell: bash
       
   - name: Get the last updated times for the container images to build key
     shell: bash
@@ -55,7 +55,7 @@ runs:
       #echo tarbaction2-`go run ./get-last-updated.go https://hub.docker.com/v2/repositories/selenium/standalone-chrome/tags/latest/` > selenium-standalone-chrome-latest.txt
       #echo "Cache key = "
       cat container-images-key.txt
-      #echo "::set-output name=port::${port}"
+      echo "port=${port}" >> $GITHUB_OUTPUT
 
   - name: Check Container Images Cache 
     id: get-last-updated
@@ -102,5 +102,5 @@ runs:
     env:
       CONTAINER_IMAGES_CACHE_HIT: ${{ steps.get-last-updated.outputs.cache-hit }}
     run: |
-      echo "::set-output name=cache-hit::$CONTAINER_IMAGES_CACHE_HIT"
+      echo "cache-hit=$CONTAINER_IMAGES_CACHE_HIT" >> $GITHUB_OUTPUT
       
