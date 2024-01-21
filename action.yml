@@ -35,28 +35,39 @@ runs:
       exit 1
     shell: bash
       
-  - name: Get the last updated times for the container images to build key
+  - name: Dump container images to file
     shell: bash
     env:
       CONTAINER_IMAGES: ${{ inputs.images }}
-      CONTAINER_IMAGES_PREFIX_KEY: ${{ inputs.prefix-key }}
     run: |
-      echo "Home = " $HOME
-      echo "PWD = " $PWD
-      echo "CONTAINER_IMAGES="$CONTAINER_IMAGES
-      # make sure this file is empty, in case action is used multiple times in the same job.
-      rm -f container-images-key.txt && touch container-images-key.txt
       export IMAGES_URIS=`echo $CONTAINER_IMAGES | sed 's/:/\/tags\//g'`
       echo "Images URIS="$IMAGES_URIS
       echo $IMAGES_URIS | tr " " "\n" >> container-images-uris.txt
       echo $CONTAINER_IMAGES | tr " " "\n" >> container-images.txt
       cat container-images-uris.txt
-      cat container-images-uris.txt | while read line ; do echo "Checking last updated time for https://hub.docker.com/v2/repositories/$line/" ; done
-      cat container-images-uris.txt | while read line ; do echo $CONTAINER_IMAGES_PREFIX_KEY-`go run ./get-last-updated.go https://hub.docker.com/v2/repositories/$line/` >> container-images-key.txt ; done
-      #echo tarbaction2-`go run ./get-last-updated.go https://hub.docker.com/v2/repositories/selenium/standalone-chrome/tags/latest/` > selenium-standalone-chrome-latest.txt
-      #echo "Cache key = "
-      cat container-images-key.txt
-      echo "port=${port}" >> $GITHUB_OUTPUT
+
+  - name: Get the last updated times for the container images to build key
+    env:
+      CONTAINER_IMAGES_PREFIX_KEY: ${{ inputs.prefix-key }}
+    run: |
+      import json, os, requests
+      
+      def get_last_updated(tag_url):
+          response = requests.get(tag_url)
+          if response.status_code == 200:
+              data = json.loads(response.content)
+              return data['last_updated']
+          return ""
+      
+      with open("container-images-uris.txt") as fp:
+          lines = fp.readlines()
+      lines = [os.environ.get('CONTAINER_IMAGES_PREFIX_KEY') + '-' + get_last_updated(f"https://hub.docker.com/v2/repositories/{ln.strip()}/") for ln in lines]
+      with open("container-images-key.txt", "w") as fp:
+          fp.write(os.linesep.join(lines))
+    shell: python
+  - name: Show update date-times
+    run: cat container-images-key.txt
+    shell: bash
 
   - name: Check Container Images Cache 
     id: get-last-updated
