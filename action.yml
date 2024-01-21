@@ -56,7 +56,7 @@ runs:
       cat container-images-uris.txt | while read line ; do echo $CONTAINER_IMAGES_PREFIX_KEY-`go run $GITHUB_ACTION_PATH/get-last-updated.go https://hub.docker.com/v2/repositories/$line/` >> container-images-key.txt ; done
       echo "Cache keys: "
       cat container-images-key.txt
-      echo "\n"
+      echo ""
 
   - name: Check Container Images Cache 
     id: get-last-updated
