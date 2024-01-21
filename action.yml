@@ -54,8 +54,9 @@ runs:
       cat container-images-uris.txt | while read line ; do echo "Checking last updated time for https://hub.docker.com/v2/repositories/$line/" ; done
       # Get last updated time from DockerHub, and add in inputs.prefix-key if it is specified.
       cat container-images-uris.txt | while read line ; do echo $CONTAINER_IMAGES_PREFIX_KEY-`go run $GITHUB_ACTION_PATH/get-last-updated.go https://hub.docker.com/v2/repositories/$line/` >> container-images-key.txt ; done
-      echo "Cache keys = "
+      echo "Cache keys: "
       cat container-images-key.txt
+      echo "\n"
 
   - name: Check Container Images Cache 
     id: get-last-updated
@@ -68,8 +69,6 @@ runs:
     shell: bash
     if: steps.get-last-updated.outputs.cache-hit != 'true'
     run: |
-      echo "Key was = " 
-      cat container-images-key.txt
       echo "Since there was a cache miss, we will pull..."
       echo "Start pulling images at " `date`
       cat container-images.txt | while read line ; do podman pull $line ; done
