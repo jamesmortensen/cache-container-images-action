@@ -9,6 +9,10 @@ inputs:
   images:
     description: 'Container images to pull and cache'
     required: true
+  prefix-key:
+    description: 'The cache namespace. change the value to force a container image cache miss.'
+    required: false
+    default: 'podman-cache'
 outputs:
   cache-hit:
     description: "True if container images were found and pulled from the cache"
@@ -43,6 +47,8 @@ runs:
       cat container-images-uris.txt
 
   - name: Get the last updated times for the container images to build key
+    env:
+      CONTAINER_IMAGES_PREFIX_KEY: ${{ inputs.prefix-key }}
     run: |
       import json, os, requests
       
@@ -55,7 +61,7 @@ runs:
       
       with open("container-images-uris.txt") as fp:
           lines = fp.readlines()
-      lines = [get_last_updated(f"https://hub.docker.com/v2/repositories/{ln.strip()}/") for ln in lines]
+      lines = [os.environ.get('CONTAINER_IMAGES_PREFIX_KEY') + '-' + get_last_updated(f"https://hub.docker.com/v2/repositories/{ln.strip()}/") for ln in lines]
       with open("container-images-key.txt", "w") as fp:
           fp.write(os.linesep.join(lines))
     shell: python
