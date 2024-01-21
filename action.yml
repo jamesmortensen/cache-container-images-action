@@ -52,7 +52,7 @@ runs:
       echo $CONTAINER_IMAGES | tr " " "\n" >> container-images.txt
       cat container-images-uris.txt
       cat container-images-uris.txt | while read line ; do echo "Checking last updated time for https://hub.docker.com/v2/repositories/$line/" ; done
-      cat container-images-uris.txt | while read line ; do echo $CONTAINER_IMAGES_PREFIX_KEY-`go run ./get-last-updated.go https://hub.docker.com/v2/repositories/$line/` >> container-images-key.txt ; done
+      cat container-images-uris.txt | while read line ; do echo $CONTAINER_IMAGES_PREFIX_KEY-`go run $GITHUB_ACTION_PATH/get-last-updated.go https://hub.docker.com/v2/repositories/$line/` >> container-images-key.txt ; done
       #echo tarbaction2-`go run ./get-last-updated.go https://hub.docker.com/v2/repositories/selenium/standalone-chrome/tags/latest/` > selenium-standalone-chrome-latest.txt
       #echo "Cache key = "
       cat container-images-key.txt
