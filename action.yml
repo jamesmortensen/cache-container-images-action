@@ -1,5 +1,5 @@
 name: 'Cache Container Images Action'
-description: ''
+description: 'Store pulled container images into the local GitHub Actions cache to reduce runtime for subsequent runs.'
 author: 'James Mortensen'
 inputs:
   runtime:
@@ -71,7 +71,7 @@ runs:
 
   - name: Check Container Images Cache 
     id: get-last-updated
-    uses: actions/cache@v2
+    uses: actions/cache@v4
     with:
       path: cached-container-images.tar
       key: ${{ runner.os }}-${{ hashFiles('**/container-images-key.txt') }}

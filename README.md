@@ -47,7 +47,7 @@ If you need to force a cache flush, change the prefix-key, 'podman-cache' by def
         id: cache-container-images
         uses: jamesmortensen/cache-container-images-action@v1
         with:
-          prefix-key: 'afdafdasfds'
+          prefix-key: 'afdafdasfds'  # Optional: this can be anything you want. Change it to force a cache flush.
           images: |
             selenium/node-chrome:4.1.2-20220130
             selenium/node-firefox:4.1.2-20220130
@@ -72,8 +72,8 @@ In your workflows, you may want to perform some actions only in the event of a c
 NOTE:  Be sure to use `!= 'true'` as actions/cache does not set any cache-hit value if there's a cache miss.
 
 
-See the [demo-action.yml](https://github.com/jamesmortensen/cache-container-images-action/blob/master/.github/workflows/demo-action.yml) workflow file for a simple example. 
+See the [test-action.yml](https://github.com/jamesmortensen/cache-container-images-action/blob/master/.github/workflows/demo-action.yml) workflow file for test results and examples. 
 
 ## License 
 
-Copyright (c) James Mortensen, 2022 MIT License
+Copyright (c) James Mortensen, 2022, 2024 MIT License
