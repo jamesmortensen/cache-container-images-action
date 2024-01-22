@@ -1,6 +1,9 @@
 name: 'Cache Container Images Action'
 description: 'Store pulled container images into the local GitHub Actions cache to reduce runtime for subsequent runs.'
 author: 'James Mortensen'
+branding:
+  icon: 'briefcase'
+  color: 'blue'
 inputs:
   runtime:
     description: 'Container runtime engine'
