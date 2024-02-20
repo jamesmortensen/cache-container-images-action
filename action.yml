@@ -49,6 +49,10 @@ runs:
       echo $CONTAINER_IMAGES | tr " " "\n" >> container-images.txt
       cat container-images-uris.txt
 
+  - name: Install required packages
+    run: pip install requests
+    shell: bash
+
   - name: Get the last updated times for the container images to build key
     env:
       CONTAINER_IMAGES_PREFIX_KEY: ${{ inputs.prefix-key }}
